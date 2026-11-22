@@ -70,6 +70,9 @@
   .set-btn span { color: var(--muted); font-size: .85rem; }
   .set-btn.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
   .word.long { font-size: 1.35rem; font-weight: 600; }
+  .cat.instr { color: var(--accent); font-weight: 600; font-size: 1rem; }
+  .diff { margin-top: 8px; color: var(--text); }
+  .diff .wrong { text-decoration: none; background: var(--bad-bg); color: var(--bad); font-weight: 600; border-bottom: 2px solid var(--bad); }
 </style>
 </head>
 <body>
@@ -238,17 +241,83 @@ const REVIEWS = [
   ["Sobrevalorat", "Overrated", "👎 Negativa"],
 ];
 
+// Cleft sentences: [original, tipo, foco/inicio, respuesta(s), pista]
+// {a|b} = cualquiera de las dos; "||" separa respuestas alternativas completas
+const CLEFT_RAW = [
+  ["Tom took Sally to the party on Saturday.", "it", "Tom", "It was Tom {who|that} took Sally to the party on Saturday.", "It was Tom …"],
+  ["Tom took Sally to the party on Saturday.", "it", "Sally", "It was Sally {that|who|whom} Tom took to the party on Saturday.", "It was Sally …"],
+  ["Tom took Sally to the party on Saturday.", "it", "to the party", "It was to the party that Tom took Sally on Saturday.", "It was to the party …"],
+  ["Tom took Sally to the party on Saturday.", "it", "on Saturday", "It was on Saturday {that|when} Tom took Sally to the party.", "It was on Saturday …"],
+  ["My neighbour saved Tom from drowning last Monday.", "it", "my neighbour", "It was my neighbour {who|that} saved Tom from drowning last Monday.", "It was my neighbour …"],
+  ["My neighbour saved Tom from drowning last Monday.", "it", "last Monday", "It was last Monday {that|when} my neighbour saved Tom from drowning.", "It was last Monday …"],
+  ["Mary broke the vase.", "it", "Mary", "It was Mary {who|that} broke the vase.", "It was Mary …"],
+  ["I met my husband in Rome.", "it", "in Rome", "It was in Rome that I met my husband.||It was Rome where I met my husband.", "It was … Rome …"],
+  ["The manager called you this morning.", "it", "the manager", "It was the manager {who|that} called you this morning.", "It was the manager …"],
+  ["She lost her keys at the station.", "it", "her keys", "It was her keys {that|which} she lost at the station.", "It was her keys …"],
+  ["We moved to London in 2015.", "it", "in 2015", "It was in 2015 {that|when} we moved to London.", "It was in 2015 …"],
+  ["My sister told me the news.", "it", "my sister", "It was my sister {who|that} told me the news.", "It was my sister …"],
+  ["The noise woke me up.", "it", "the noise", "It was the noise {that|which} woke me up.", "It was the noise …"],
+  ["I want a holiday.", "it", "a holiday", "It is a holiday {that|which} I want.", "It is a holiday …"],
+  ["Teachers need more support.", "it", "teachers", "It is teachers {who|that} need more support.", "It is teachers …"],
+  ["They broke the window.", "what", "la acción", "What they did was break the window.", "What they …"],
+  ["Tom cheated on the exam.", "what", "la acción", "What Tom did was cheat on the exam.", "What Tom …"],
+  ["She called the police.", "what", "la acción", "What she did was call the police.", "What she …"],
+  ["He forgot my birthday.", "what", "la acción", "What he did was forget my birthday.", "What he …"],
+  ["We painted the house.", "what", "la acción", "What we did was paint the house.", "What we …"],
+  ["She works in a hospital.", "what", "la acción", "What she does is work in a hospital.", "What she …"],
+  ["I go for a run every morning.", "what", "la acción", "What I do every morning is go for a run.||What I do is go for a run every morning.", "What I …"],
+  ["The government raised taxes.", "what", "la acción", "What the government did was raise taxes.", "What the government …"],
+  ["She is super nice.", "be", "la descripción", "What she is is super nice.", "What she …"],
+  ["They are so mean.", "be", "la descripción", "What they are is so mean.", "What they …"],
+  ["Tom was rude last night.", "be", "la descripción", "What Tom was was rude last night.", "What Tom …"],
+  ["He is really talented.", "be", "la descripción", "What he is is really talented.", "What he …"],
+  ["The film was incredibly boring.", "be", "la descripción", "What the film was was incredibly boring.", "What the film …"],
+  ["You are too impatient.", "be", "la descripción", "What you are is too impatient.", "What you …"],
+  ["I need more time.", "other", "The thing that", "The thing that I need is more time.", "The thing that I …"],
+  ["She hates his attitude.", "other", "The thing that", "The thing that she hates is his attitude.", "The thing that she …"],
+  ["I'm worried about the exam.", "other", "The thing that", "The thing that I'm worried about is the exam.||The thing that I am worried about is the exam.", "The thing that I …"],
+  ["I left because I was tired.", "other", "The reason why", "The reason why I left was {that|because} I was tired.", "The reason why I …"],
+  ["He resigned because the salary was too low.", "other", "The reason why", "The reason why he resigned was {that|because} the salary was too low.", "The reason why he …"],
+  ["I only want some peace and quiet.", "other", "The only thing", "The only thing {I|that I} want is some peace and quiet.", "The only thing …"],
+  ["They only care about money.", "other", "The only thing", "The only thing {they|that they} care about is money.", "The only thing …"],
+  ["I just want you for Christmas.", "other", "All", "All I want for Christmas is you.", "All I …"],
+  ["I only need a good night's sleep.", "other", "All", "All I need is a good night's sleep.", "All I …"],
+  ["We only asked for an apology.", "other", "All", "All we asked for was an apology.", "All we …"],
+];
+function expand(t) {
+  return t.split("||").flatMap(alt => {
+    let out = [""];
+    alt.split(/(\{[^}]*\})/).forEach(part => {
+      const choices = part.startsWith("{") ? part.slice(1, -1).split("|") : [part];
+      out = out.flatMap(o => choices.map(c => o + c));
+    });
+    return out.map(x => x.trim());
+  });
+}
+const CLEFT_TYPE = {
+  it: f => `IT-cleft · destaca: «${f}»`,
+  what: () => "WHAT-cleft · destaca la acción",
+  be: () => "WHAT-cleft (verbo TO BE) · destaca la descripción",
+  other: f => `Empieza con «${f}…»`,
+};
+const CLEFTS = CLEFT_RAW.map(([orig, type, focus, ans, hint]) => {
+  const all = expand(ans);
+  const shown = ans.split("||")[0].replace(/\{([^|}]*)[^}]*\}/g, "$1");
+  return [orig, shown, CLEFT_TYPE[type](focus), { answers: all, hint }];
+});
+
 const SETS = {
   formal:  { name: "Informal → Formal", desc: "Te doy la palabra informal y tú escribes la formal.", items: WORDS, prompt: "Informal", answer: "Formal", extraIsCat: true },
   verbs:   { name: "Key Verbs", desc: "Te doy el sinónimo y tú escribes el key verb.", items: KEY_VERBS, prompt: "Sinónimo", answer: "Key verb", long: false },
   reviews: { name: "Vocabulary for Reviews", desc: "Te doy la definición en catalán y tú escribes la palabra en inglés.", items: REVIEWS, prompt: "Definición", answer: "Palabra en inglés", long: true },
+  cleft:   { name: "Cleft Sentences", desc: "Transforma la frase en una cleft sentence (It / What / All / The thing that…).", items: CLEFTS, prompt: "Frase original", answer: "Cleft sentence", long: true, unit: "frases" },
 };
 let setId = "formal";
 try { if (SETS[localStorage.getItem("setId")]) setId = localStorage.getItem("setId"); } catch {}
 
 function renderSets() {
   $("sets").innerHTML = Object.entries(SETS).map(([id, st]) =>
-    `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} palabras</span></button>`).join("");
+    `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} ${st.unit || "palabras"}</span></button>`).join("");
   $("sets").querySelectorAll(".set-btn").forEach(b => b.addEventListener("click", () => {
     setId = b.dataset.set; try { localStorage.setItem("setId", setId); } catch {}
     renderSets();
@@ -260,14 +329,16 @@ function renderSets() {
 // Normaliza: minúsculas, sin espacios extra, sin puntuación final, y acepta ortografía americana (-ize, favorable)
 function norm(s) {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
-    .replace(/[.!?,;:]+$/g, "")
+    .replace(/[.!?;:…]+$/g, "")
+    .replace(/,/g, "")
     .replace(/\s+/g, " ")
     .replace(/[’`]/g, "'")
     .replace(/\s*-\s*/g, "-")
     .replace(/iz(e|ed|ing)\b/g, "is$1")
     .replace(/favorable/g, "favourable");
 }
-const options = w => w[1].split("/").map(s => s.trim());
+const options = w => w[3] ? w[3].answers : w[1].split("/").map(s => s.trim());
+const itemKey = w => w[0] + "|" + (w[3] ? w[2] : "");
 
 const $ = id => document.getElementById(id);
 let mode = "easy", queue = [], idx = 0, correct = 0, mistakes = [], answered = false;
@@ -291,6 +362,7 @@ function startGame(list) {
 }
 
 function hintFor(w) {
+  if (w[3]) return w[3].hint;
   // Primera letra de cada opción, con guiones según la longitud de cada palabra
   return options(w).map(o =>
     o.split(" ").map((part, i) => {
@@ -309,6 +381,7 @@ function show() {
   $("barFill").style.width = (idx / queue.length * 100) + "%";
   $("word").textContent = w[0];
   const st = SETS[setId];
+  $("cat").classList.toggle("instr", !!w[3]);
   $("cat").textContent = !w[2] ? "" : st.extraIsCat ? ($("showCat").checked ? "(" + w[2] + ")" : "") : w[2];
   $("hint").textContent = mode === "easy" ? hintFor(w) : "";
   $("hint").classList.toggle("hidden", mode !== "easy");
@@ -328,11 +401,12 @@ function check(skip) {
   if (ok) {
     correct++;
     fb.className = "feedback ok";
-    fb.innerHTML = options(w).length > 1 ? `✅ ¡Correcto! También vale: <b>${w[1]}</b>` : "✅ ¡Correcto!";
+    fb.innerHTML = !w[3] && options(w).length > 1 ? `✅ ¡Correcto! También vale: <b>${w[1]}</b>` : "✅ ¡Correcto!";
   } else {
     mistakes.push({ w, given: skip ? "" : given });
     fb.className = "feedback bad";
-    fb.innerHTML = (skip ? "La respuesta era: " : "❌ Incorrecto. La correcta es: ") + `<b>${w[1]}</b>`;
+    fb.innerHTML = (skip ? "La respuesta era: " : "❌ Incorrecto. La correcta es: ") + `<b>${w[1]}</b>` +
+      (w[3] && !skip ? `<div class="diff">Tu respuesta: ${diffHtml(given, w)}</div>` : "");
   }
   $("answer").disabled = true;
   $("scoreLive").textContent = `✔ ${correct}`;
@@ -351,16 +425,36 @@ function finish() {
   $("game").classList.add("hidden"); $("result").classList.remove("hidden");
   const pct = done ? Math.round(correct / done * 100) : 0;
   $("finalScore").textContent = `${correct} / ${done}  (${pct}%)`;
-  saveWrong(mistakes.map(m => m.w[0]));
+  saveWrong(mistakes.map(m => itemKey(m.w)));
   if (mistakes.length) {
     $("mistakes").innerHTML = `<div class='label' style='margin-top:12px'>Para repasar</div><table><tr><th>${SETS[setId].prompt}</th><th>Tu respuesta</th><th>Correcta</th></tr>` +
-      mistakes.map(m => `<tr><td>${m.w[0]}</td><td class="wrong">${m.given ? escapeHtml(m.given) : "—"}</td><td><b>${m.w[1]}</b></td></tr>`).join("") +
+      mistakes.map(m => `<tr><td>${m.w[0]}</td><td>${m.given ? (m.w[3] ? `<span class="diff">${diffHtml(m.given, m.w)}</span>` : `<span class="wrong">${escapeHtml(m.given)}</span>`) : "—"}</td><td><b>${m.w[1]}</b></td></tr>`).join("") +
       "</table>";
     $("retryWrong").classList.remove("hidden");
   } else {
     $("mistakes").innerHTML = done ? "<p>🎉 ¡Ninguna fallada!</p>" : "";
     $("retryWrong").classList.add("hidden");
   }
+}
+// Marca en rojo las palabras de tu respuesta que no encajan con la respuesta correcta más parecida
+function diffHtml(given, w) {
+  const tok = x => x.trim().split(/\s+/).filter(Boolean);
+  const g = tok(given);
+  let best = null;
+  options(w).forEach(o => {
+    const c = tok(o), n = g.length, m = c.length;
+    const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+      L[i][j] = norm(g[i]) === norm(c[j]) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    if (!best || L[0][0] > best.L[0][0]) best = { L, c };
+  });
+  const { L, c } = best, keep = new Set();
+  let i = 0, j = 0;
+  while (i < g.length && j < c.length) {
+    if (norm(g[i]) === norm(c[j])) { keep.add(i); i++; j++; }
+    else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
+  }
+  return g.map((t, k) => keep.has(k) ? escapeHtml(t) : `<span class="wrong">${escapeHtml(t)}</span>`).join(" ");
 }
 function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
@@ -370,7 +464,7 @@ document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", 
   let list = ALL;
   if ($("onlyWrong").checked) {
     const wrong = loadWrong();
-    const filtered = ALL.filter(w => wrong.includes(w[0]));
+    const filtered = ALL.filter(w => wrong.includes(itemKey(w)));
     if (filtered.length) list = filtered; else alert("No hay palabras falladas guardadas. Empiezo con todas.");
   }
   startGame(list);
