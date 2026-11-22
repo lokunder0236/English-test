@@ -68,6 +68,7 @@
   .sets { display: grid; gap: 8px; margin: 8px 0 0; }
   .set-btn { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .set-btn span { color: var(--muted); font-size: .85rem; }
+  .setdesc { font-size: .85rem; color: var(--muted); margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .group { font-weight: 700; margin: 10px 0 0; }
   .set-btn.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
   .word.long { font-size: 1.35rem; font-weight: 600; }
@@ -79,7 +80,7 @@
 <body>
 <div class="wrap">
   <h1>English CAE Practice</h1>
-  <p class="sub" id="subtitle">Escoge qué quieres practicar.</p>
+  <p class="sub" id="subtitle">Vocabulario y gramática para el CAE. Escoge un tema, el modo, ¡y a practicar!</p>
 
   <!-- Inicio -->
   <div id="start" class="card">
@@ -98,6 +99,7 @@
 
   <!-- Juego -->
   <div id="game" class="card hidden">
+    <div class="setdesc" id="setDesc"></div>
     <div class="top"><span id="progress"></span><span id="scoreLive"></span></div>
     <div class="bar"><div id="barFill"></div></div>
     <div class="label" id="promptLabel">Informal</div>
@@ -489,7 +491,6 @@ function renderSets() {
     setId = b.dataset.set; try { localStorage.setItem("setId", setId); } catch {}
     renderSets();
   }));
-  $("subtitle").textContent = SETS[setId].desc;
   $("showCatLabel").classList.toggle("hidden", !SETS[setId].extraIsCat);
 }
 
@@ -524,6 +525,7 @@ function saveWrong(list) { try { localStorage.setItem(wrongKey(), JSON.stringify
 function startGame(list) {
   queue = shuffle(list); idx = 0; correct = 0; mistakes = [];
   const st = SETS[setId];
+  $("setDesc").textContent = st.name + " · " + st.desc;
   $("promptLabel").textContent = st.prompt; $("answerLabel").textContent = st.answer;
   $("word").classList.toggle("long", !!st.long);
   $("start").classList.add("hidden"); $("result").classList.add("hidden"); $("game").classList.remove("hidden");
