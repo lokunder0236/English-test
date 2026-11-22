@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="ca">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -80,20 +80,20 @@
 <body>
 <div class="wrap">
   <h1>English CAE Practice</h1>
-  <p class="sub" id="subtitle">Vocabulario y gramática para el CAE. Escoge un tema, el modo, ¡y a practicar!</p>
+  <p class="sub" id="subtitle">Vocabulari i gramàtica per al CAE. Tria un tema, el mode, i a practicar!</p>
 
   <!-- Inicio -->
   <div id="start" class="card">
-    <div class="label">1. ¿Qué quieres practicar?</div>
+    <div class="label">1. Què vols practicar?</div>
     <div class="sets" id="sets"></div>
-    <div class="label" style="margin-top:18px">2. Escoge el modo</div>
+    <div class="label" style="margin-top:18px">2. Tria el mode</div>
     <div class="modes">
-      <button class="mode-btn" data-mode="easy"><strong>🟢 Fácil</strong><span>Te doy una pista al principio</span></button>
-      <button class="mode-btn" data-mode="hard"><strong>🔴 Difícil</strong><span>Sin pistas</span></button>
+      <button class="mode-btn" data-mode="easy"><strong>🟢 Fàcil</strong><span>Et dono una pista al principi</span></button>
+      <button class="mode-btn" data-mode="hard"><strong>🔴 Difícil</strong><span>Sense pistes</span></button>
     </div>
     <div class="opts">
-      <label id="showCatLabel"><input type="checkbox" id="showCat" checked> Mostrar significado en catalán</label>
-      <label><input type="checkbox" id="onlyWrong"> Solo las que fallé la última vez</label>
+      <label id="showCatLabel"><input type="checkbox" id="showCat" checked> Mostrar el significat en català</label>
+      <label><input type="checkbox" id="onlyWrong"> Només les que vaig fallar l'última vegada</label>
     </div>
   </div>
 
@@ -107,23 +107,23 @@
     <div class="cat" id="cat"></div>
     <div class="label" id="answerLabel">Formal</div>
     <div class="hint" id="hint"></div>
-    <input type="text" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe la respuesta…">
+    <input type="text" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escriu la resposta…">
     <div class="row">
-      <button id="checkBtn" class="primary">Comprobar</button>
-      <button id="skipBtn">No lo sé</button>
+      <button id="checkBtn" class="primary">Comprovar</button>
+      <button id="skipBtn">No ho sé</button>
     </div>
     <div class="feedback" id="feedback"></div>
-    <div class="row"><button id="quitBtn">Terminar</button></div>
+    <div class="row"><button id="quitBtn">Acabar</button></div>
   </div>
 
   <!-- Resultado -->
   <div id="result" class="card hidden">
-    <div class="label">Resultado</div>
+    <div class="label">Resultat</div>
     <div class="score" id="finalScore"></div>
     <div id="mistakes"></div>
     <div class="row">
-      <button id="retryWrong" class="primary">Repetir las falladas</button>
-      <button id="backBtn">Volver al inicio</button>
+      <button id="retryWrong" class="primary">Repetir les fallades</button>
+      <button id="backBtn">Tornar a l'inici</button>
     </div>
   </div>
 </div>
@@ -262,20 +262,20 @@ const CLEFT_RAW = [
   ["The noise woke me up.", "it", "the noise", "It was the noise {that|which} woke me up.", "It was the noise …"],
   ["I want a holiday.", "it", "a holiday", "It is a holiday {that|which} I want.", "It is a holiday …"],
   ["Teachers need more support.", "it", "teachers", "It is teachers {who|that} need more support.", "It is teachers …"],
-  ["They broke the window.", "what", "la acción", "What they did was break the window.", "What they …"],
-  ["Tom cheated on the exam.", "what", "la acción", "What Tom did was cheat on the exam.", "What Tom …"],
-  ["She called the police.", "what", "la acción", "What she did was call the police.", "What she …"],
-  ["He forgot my birthday.", "what", "la acción", "What he did was forget my birthday.", "What he …"],
-  ["We painted the house.", "what", "la acción", "What we did was paint the house.", "What we …"],
-  ["She works in a hospital.", "what", "la acción", "What she does is work in a hospital.", "What she …"],
-  ["I go for a run every morning.", "what", "la acción", "What I do every morning is go for a run.||What I do is go for a run every morning.", "What I …"],
-  ["The government raised taxes.", "what", "la acción", "What the government did was raise taxes.", "What the government …"],
-  ["She is super nice.", "be", "la descripción", "What she is is super nice.", "What she …"],
-  ["They are so mean.", "be", "la descripción", "What they are is so mean.", "What they …"],
-  ["Tom was rude last night.", "be", "la descripción", "What Tom was was rude last night.", "What Tom …"],
-  ["He is really talented.", "be", "la descripción", "What he is is really talented.", "What he …"],
-  ["The film was incredibly boring.", "be", "la descripción", "What the film was was incredibly boring.", "What the film …"],
-  ["You are too impatient.", "be", "la descripción", "What you are is too impatient.", "What you …"],
+  ["They broke the window.", "what", "l'acció", "What they did was break the window.", "What they …"],
+  ["Tom cheated on the exam.", "what", "l'acció", "What Tom did was cheat on the exam.", "What Tom …"],
+  ["She called the police.", "what", "l'acció", "What she did was call the police.", "What she …"],
+  ["He forgot my birthday.", "what", "l'acció", "What he did was forget my birthday.", "What he …"],
+  ["We painted the house.", "what", "l'acció", "What we did was paint the house.", "What we …"],
+  ["She works in a hospital.", "what", "l'acció", "What she does is work in a hospital.", "What she …"],
+  ["I go for a run every morning.", "what", "l'acció", "What I do every morning is go for a run.||What I do is go for a run every morning.", "What I …"],
+  ["The government raised taxes.", "what", "l'acció", "What the government did was raise taxes.", "What the government …"],
+  ["She is super nice.", "be", "la descripció", "What she is is super nice.", "What she …"],
+  ["They are so mean.", "be", "la descripció", "What they are is so mean.", "What they …"],
+  ["Tom was rude last night.", "be", "la descripció", "What Tom was was rude last night.", "What Tom …"],
+  ["He is really talented.", "be", "la descripció", "What he is is really talented.", "What he …"],
+  ["The film was incredibly boring.", "be", "la descripció", "What the film was was incredibly boring.", "What the film …"],
+  ["You are too impatient.", "be", "la descripció", "What you are is too impatient.", "What you …"],
   ["I need more time.", "other", "The thing that", "The thing that I need is more time.", "The thing that I …"],
   ["She hates his attitude.", "other", "The thing that", "The thing that she hates is his attitude.", "The thing that she …"],
   ["I'm worried about the exam.", "other", "The thing that", "The thing that I'm worried about is the exam.||The thing that I am worried about is the exam.", "The thing that I …"],
@@ -299,9 +299,9 @@ function expand(t) {
 }
 const CLEFT_TYPE = {
   it: f => `IT-cleft · destaca: «${f}»`,
-  what: () => "WHAT-cleft · destaca la acción",
-  be: () => "WHAT-cleft (verbo TO BE) · destaca la descripción",
-  other: f => `Empieza con «${f}…»`,
+  what: () => "WHAT-cleft · destaca l'acció",
+  be: () => "WHAT-cleft (verb TO BE) · destaca la descripció",
+  other: f => `Comença amb «${f}…»`,
 };
 const CLEFTS = CLEFT_RAW.map(([orig, type, focus, ans, hint]) => {
   const all = expand(ans);
@@ -375,9 +375,9 @@ function sentenceHint(ans, n) {
 const makeSentence = (orig, ans, instr, hint) =>
   [orig, ans.split("||")[0].replace(/\{([^|}]*)[^}]*\}/g, "$1"), instr, { answers: expand(ans), hint }];
 const INVERSIONS = INVERSION_RAW.map(([orig, start, ans]) =>
-  makeSentence(orig, ans, `Empieza con «${start}…»`, sentenceHint(ans, start.split(" ").length)));
+  makeSentence(orig, ans, `Comença amb «${start}…»`, sentenceHint(ans, start.split(" ").length)));
 const CONDITIONALS = CONDITIONAL_RAW.map(([orig, ans]) =>
-  makeSentence(orig, ans, "Quita el IF e invierte el condicional", sentenceHint(ans, 0)));
+  makeSentence(orig, ans, "Treu l'IF i inverteix el condicional", sentenceHint(ans, 0)));
 
 // Opposites: [palabra, contrario, catalán palabra, catalán contrario]
 const OPP_RAW = [
@@ -463,20 +463,20 @@ const IMPERSONAL_RAW = [
   ["Experts estimate that the damage cost millions.", "estimated", "The damage", "The damage is estimated to have cost millions."],
   ["Experts estimate that the damage cost millions.", "estimated", "It", "It is estimated that the damage cost millions."],
 ];
-const PARTICIPLES = PARTICIPLE_RAW.map(([o, st, a]) => makeSentence(o, a, `Participle clause · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
-const PASSIVES = PASSIVE_RAW.map(([o, st, a]) => makeSentence(o, a, `Pásala a pasiva · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
-const IMPERSONALS = IMPERSONAL_RAW.map(([o, v, st, a]) => makeSentence(o, a, `Usa «${v}» · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
+const PARTICIPLES = PARTICIPLE_RAW.map(([o, st, a]) => makeSentence(o, a, `Participle clause · comença amb «${st}…»`, sentenceHint(a, st.split(" ").length)));
+const PASSIVES = PASSIVE_RAW.map(([o, st, a]) => makeSentence(o, a, `Passa-la a passiva · comença amb «${st}…»`, sentenceHint(a, st.split(" ").length)));
+const IMPERSONALS = IMPERSONAL_RAW.map(([o, v, st, a]) => makeSentence(o, a, `Fes servir «${v}» · comença amb «${st}…»`, sentenceHint(a, st.split(" ").length)));
 
 const SETS = {
-  formal:  { name: "Informal → Formal", desc: "Te doy la palabra informal y tú escribes la formal.", items: WORDS, prompt: "Informal", answer: "Formal", extraIsCat: true },
-  verbs:   { name: "Key Verbs", desc: "Te doy el sinónimo y tú escribes el key verb.", items: KEY_VERBS, prompt: "Sinónimo", answer: "Key verb", long: false },
-  reviews: { name: "Vocabulary for Reviews", desc: "Te doy la definición en catalán y tú escribes la palabra en inglés.", items: REVIEWS, prompt: "Definición", answer: "Palabra en inglés", long: true },
-  opposites: { name: "Opposites", desc: "Te doy un adjetivo y tú escribes su contrario.", items: OPPOSITES, prompt: "Palabra", answer: "Contrario", extraIsCat: true },
-  inversion: { name: "Inversion", desc: "Reescribe la frase con inversión, empezando por la expresión que te indico.", items: INVERSIONS, prompt: "Frase normal", answer: "Con inversión", long: true, unit: "frases" },
-  conditionals: { name: "Inverted Conditionals", desc: "Quita el IF y escribe el condicional invertido (Should / Were / Had).", items: CONDITIONALS, prompt: "Frase con IF", answer: "Condicional invertido", long: true, unit: "frases" },
-  participle: { name: "Participle Clauses", desc: "Une o acorta la frase con una participle clause (-ing, Having + V3, V3).", items: PARTICIPLES, prompt: "Frase original", answer: "Participle clause", long: true, unit: "frases" },
-  passive: { name: "Passive", desc: "Pasa la frase de activa a pasiva.", items: PASSIVES, prompt: "Activa", answer: "Pasiva", long: true, unit: "frases" },
-  impersonal: { name: "Impersonal Passive", desc: "Reescribe la frase con impersonal passive (is said to… / It is said that…).", items: IMPERSONALS, prompt: "Frase original", answer: "Impersonal passive", long: true, unit: "frases" },
+  formal:  { name: "Informal → Formal", desc: "Et dono la paraula informal i tu escrius la formal.", items: WORDS, prompt: "Informal", answer: "Formal", extraIsCat: true },
+  verbs:   { name: "Key Verbs", desc: "Et dono el sinònim i tu escrius el key verb.", items: KEY_VERBS, prompt: "Sinònim", answer: "Key verb", long: false },
+  reviews: { name: "Vocabulary for Reviews", desc: "Et dono la definició en català i tu escrius la paraula en anglès.", items: REVIEWS, prompt: "Definició", answer: "Paraula en anglès", long: true },
+  opposites: { name: "Opposites", desc: "Et dono un adjectiu i tu escrius el seu contrari.", items: OPPOSITES, prompt: "Paraula", answer: "Contrari", extraIsCat: true },
+  inversion: { name: "Inversion", desc: "Reescriu la frase amb inversió, començant per l'expressió que t'indico.", items: INVERSIONS, prompt: "Frase normal", answer: "Amb inversió", long: true, unit: "frases" },
+  conditionals: { name: "Inverted Conditionals", desc: "Treu l'IF i escriu el condicional invertit (Should / Were / Had).", items: CONDITIONALS, prompt: "Frase amb IF", answer: "Condicional invertit", long: true, unit: "frases" },
+  participle: { name: "Participle Clauses", desc: "Uneix o escurça la frase amb una participle clause (-ing, Having + V3, V3).", items: PARTICIPLES, prompt: "Frase original", answer: "Participle clause", long: true, unit: "frases" },
+  passive: { name: "Passive", desc: "Passa la frase d'activa a passiva.", items: PASSIVES, prompt: "Activa", answer: "Passiva", long: true, unit: "frases" },
+  impersonal: { name: "Impersonal Passive", desc: "Reescriu la frase amb impersonal passive (is said to… / It is said that…).", items: IMPERSONALS, prompt: "Frase original", answer: "Impersonal passive", long: true, unit: "frases" },
   cleft:   { name: "Cleft Sentences", desc: "Transforma la frase en una cleft sentence (It / What / All / The thing that…).", items: CLEFTS, prompt: "Frase original", answer: "Cleft sentence", long: true, unit: "frases" },
 };
 let setId = "formal";
@@ -486,7 +486,7 @@ function renderSets() {
   const GRAMMAR_START = "inversion";
   $("sets").innerHTML = Object.entries(SETS).map(([id, st]) =>
     (id === "formal" ? `<div class="group">📚 Vocabulary</div>` : id === GRAMMAR_START ? `<div class="group">✏️ Grammar</div>` : "") +
-    `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} ${st.unit || "palabras"}</span></button>`).join("");
+    `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} ${st.unit || "paraules"}</span></button>`).join("");
   $("sets").querySelectorAll(".set-btn").forEach(b => b.addEventListener("click", () => {
     setId = b.dataset.set; try { localStorage.setItem("setId", setId); } catch {}
     renderSets();
@@ -558,7 +558,7 @@ function show() {
   $("hint").classList.toggle("hidden", mode !== "easy");
   $("answer").value = ""; $("answer").disabled = false; $("answer").focus();
   $("feedback").className = "feedback"; $("feedback").innerHTML = "";
-  $("checkBtn").textContent = "Comprobar"; $("skipBtn").classList.remove("hidden");
+  $("checkBtn").textContent = "Comprovar"; $("skipBtn").classList.remove("hidden");
 }
 
 function check(skip) {
@@ -572,16 +572,16 @@ function check(skip) {
   if (ok) {
     correct++;
     fb.className = "feedback ok";
-    fb.innerHTML = !w[3] && options(w).length > 1 ? `✅ ¡Correcto! También vale: <b>${w[1]}</b>` : "✅ ¡Correcto!";
+    fb.innerHTML = !w[3] && options(w).length > 1 ? `✅ Correcte! També val: <b>${w[1]}</b>` : "✅ Correcte!";
   } else {
     mistakes.push({ w, given: skip ? "" : given });
     fb.className = "feedback bad";
-    fb.innerHTML = (skip ? "La respuesta era: " : "❌ Incorrecto. La correcta es: ") + `<b>${w[1]}</b>` +
-      (w[3] && !skip ? `<div class="diff">Tu respuesta: ${diffHtml(given, w)}</div>` : "");
+    fb.innerHTML = (skip ? "La resposta era: " : "❌ Incorrecte. La correcta és: ") + `<b>${w[1]}</b>` +
+      (w[3] && !skip ? `<div class="diff">La teva resposta: ${diffHtml(given, w)}</div>` : "");
   }
   $("answer").disabled = true;
   $("scoreLive").textContent = `✔ ${correct}`;
-  $("checkBtn").textContent = idx + 1 < queue.length ? "Siguiente →" : "Ver resultado";
+  $("checkBtn").textContent = idx + 1 < queue.length ? "Següent →" : "Veure el resultat";
   $("skipBtn").classList.add("hidden");
   $("checkBtn").blur(); $("answer").blur();
 }
@@ -598,12 +598,12 @@ function finish() {
   $("finalScore").textContent = `${correct} / ${done}  (${pct}%)`;
   saveWrong(mistakes.map(m => itemKey(m.w)));
   if (mistakes.length) {
-    $("mistakes").innerHTML = `<div class='label' style='margin-top:12px'>Para repasar</div><table><tr><th>${SETS[setId].prompt}</th><th>Tu respuesta</th><th>Correcta</th></tr>` +
+    $("mistakes").innerHTML = `<div class='label' style='margin-top:12px'>Per repassar</div><table><tr><th>${SETS[setId].prompt}</th><th>La teva resposta</th><th>Correcta</th></tr>` +
       mistakes.map(m => `<tr><td>${m.w[0]}</td><td>${m.given ? (m.w[3] ? `<span class="diff">${diffHtml(m.given, m.w)}</span>` : `<span class="wrong">${escapeHtml(m.given)}</span>`) : "—"}</td><td><b>${m.w[1]}</b></td></tr>`).join("") +
       "</table>";
     $("retryWrong").classList.remove("hidden");
   } else {
-    $("mistakes").innerHTML = done ? "<p>🎉 ¡Ninguna fallada!</p>" : "";
+    $("mistakes").innerHTML = done ? "<p>🎉 Cap fallada!</p>" : "";
     $("retryWrong").classList.add("hidden");
   }
 }
@@ -636,7 +636,7 @@ document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", 
   if ($("onlyWrong").checked) {
     const wrong = loadWrong();
     const filtered = ALL.filter(w => wrong.includes(itemKey(w)));
-    if (filtered.length) list = filtered; else alert("No hay palabras falladas guardadas. Empiezo con todas.");
+    if (filtered.length) list = filtered; else alert("No hi ha cap pregunta fallada guardada. Començo amb totes.");
   }
   startGame(list);
 }));
