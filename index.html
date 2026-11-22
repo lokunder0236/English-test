@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informal → Formal</title>
+<style>
+  :root {
+    --bg: #f4f5f8; --card: #ffffff; --text: #1d2130; --muted: #6b7183;
+    --accent: #3b5bdb; --ok: #2b8a3e; --ok-bg: #e6f6ea; --bad: #c92a2a; --bad-bg: #fdecec;
+    --border: #dde0e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161c; --card: #1e2129; --text: #e8eaf0; --muted: #9aa0b0;
+      --accent: #7b93ff; --ok: #69db7c; --ok-bg: #1d3324; --bad: #ff8787; --bad-bg: #3a1f22;
+      --border: #333846;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; justify-content: center; padding: 24px 16px; min-height: 100vh;
+  }
+  .wrap { width: 100%; max-width: 560px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: .95rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; margin-bottom: 16px;
+  }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--text); padding: 12px 16px;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:hover { filter: brightness(1.05); }
+  .mode-btn { text-align: left; padding: 16px; }
+  .mode-btn strong { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+  .mode-btn span { color: var(--muted); font-size: .88rem; }
+  .top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
+  .bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+  .bar > div { height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+  .label { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+  .word { font-size: 2rem; font-weight: 700; margin: 4px 0 4px; }
+  .cat { color: var(--muted); font-size: .9rem; margin-bottom: 18px; min-height: 1.2em; }
+  .hint { font-family: ui-monospace, Menlo, monospace; color: var(--accent); font-size: 1.1rem; margin-bottom: 8px; }
+  input[type=text] {
+    width: 100%; font: inherit; font-size: 1.15rem; padding: 12px 14px; border-radius: 10px;
+    border: 2px solid var(--border); background: var(--bg); color: var(--text); outline: none;
+  }
+  input[type=text]:focus { border-color: var(--accent); }
+  .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .row button { flex: 1; }
+  .feedback { margin-top: 14px; padding: 12px 14px; border-radius: 10px; display: none; }
+  .feedback.ok { display: block; background: var(--ok-bg); color: var(--ok); }
+  .feedback.bad { display: block; background: var(--bad-bg); color: var(--bad); }
+  .feedback b { color: var(--text); }
+  .score { font-size: 2.4rem; font-weight: 700; margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; margin-top: 10px; }
+  td, th { padding: 7px 6px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .wrong { color: var(--bad); text-decoration: line-through; }
+  .opts { margin-top: 14px; display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: .9rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Informal → Formal</h1>
+  <p class="sub">Te doy la palabra informal y tú escribes la formal.</p>
+
+  <!-- Inicio -->
+  <div id="start" class="card">
+    <div class="modes">
+      <button class="mode-btn" data-mode="easy"><strong>🟢 Fácil</strong><span>Te doy la primera letra</span></button>
+      <button class="mode-btn" data-mode="hard"><strong>🔴 Difícil</strong><span>Sin pistas</span></button>
+    </div>
+    <div class="opts">
+      <label><input type="checkbox" id="showCat" checked> Mostrar significado en catalán</label>
+      <label><input type="checkbox" id="onlyWrong"> Solo las que fallé la última vez</label>
+    </div>
+  </div>
+
+  <!-- Juego -->
+  <div id="game" class="card hidden">
+    <div class="top"><span id="progress"></span><span id="scoreLive"></span></div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div class="label">Informal</div>
+    <div class="word" id="word"></div>
+    <div class="cat" id="cat"></div>
+    <div class="label">Formal</div>
+    <div class="hint" id="hint"></div>
+    <input type="text" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe la palabra formal…">
+    <div class="row">
+      <button id="checkBtn" class="primary">Comprobar</button>
+      <button id="skipBtn">No lo sé</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="row"><button id="quitBtn">Terminar</button></div>
+  </div>
+
+  <!-- Resultado -->
+  <div id="result" class="card hidden">
+    <div class="label">Resultado</div>
+    <div class="score" id="finalScore"></div>
+    <div id="mistakes"></div>
+    <div class="row">
+      <button id="retryWrong" class="primary">Repetir las falladas</button>
+      <button id="backBtn">Volver al inicio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORDS = [
+  ["Get", "Obtain", "Aconseguir, obtenir"],
+  ["Buy", "Purchase", "Comprar, adquirir"],
+  ["Help", "Assist", "Ajudar, assistir"],
+  ["Ask for help", "Request assistance", "Demanar ajuda"],
+  ["Tell", "Inform", "Informar, comunicar"],
+  ["Need", "Require", "Necessitar, requerir"],
+  ["Enough", "Sufficient", "Suficient"],
+  ["Start", "Begin", "Començar, iniciar"],
+  ["End", "Cease", "Acabar, cessar"],
+  ["Deal with", "Handle", "Gestionar, afrontar"],
+  ["Look into", "Investigate", "Investigar"],
+  ["Put off", "Postpone", "Posposar, ajornar"],
+  ["Put up with", "Tolerate", "Tolerar, suportar"],
+  ["Find out", "Discover", "Descobrir"],
+  ["Live longer than", "Outlive", "Sobreviure a algú, viure més que"],
+  ["Go up", "Increase", "Augmentar, incrementar"],
+  ["Go down", "Decrease", "Disminuir, reduir"],
+  ["Use", "Utilise", "Utilitzar"],
+  ["Before", "Prior to", "Abans de"],
+  ["After", "Following", "Després de"],
+  ["Now", "Currently", "Actualment"],
+  ["Many", "Numerous", "Nombrosos, molts"],
+  ["A lot of", "A great deal of", "Una gran quantitat de"],
+  ["Bad", "Unfavourable / Adverse", "Dolent, desfavorable, advers"],
+  ["Good", "Beneficial", "Beneficiós"],
+  ["Job", "Occupation", "Feina, ocupació"],
+  ["Chance", "Opportunity", "Oportunitat"],
+  ["Problem", "Issue", "Problema, qüestió"],
+  ["Choice", "Option", "Opció, elecció"],
+  ["Lucky", "Fortunate", "Afortunat"],
+  ["Seem", "Appear", "Semblar"],
+  ["Say sorry", "Apologise", "Disculpar-se"],
+  ["Set up", "Establish", "Establir, fundar"],
+  ["Look at", "Examine", "Examinar"],
+  ["Call off", "Cancel", "Cancel·lar, anul·lar"],
+  ["Let", "Allow / Permit", "Permetre"],
+  ["Fill in", "Complete / Fill out", "Emplenar (un formulari)"],
+  ["Input", "Enter", "Introduir dades"],
+  ["Try", "Attempt", "Intentar"],
+  ["Rack up", "Accumulate", "Acumular"],
+  ["Point out", "Indicate", "Assenyalar, indicar"],
+  ["Go against", "Oppose", "Oposar-se a"],
+  ["Get in touch with", "Contact", "Posar-se en contacte amb"],
+  ["About", "Regarding / Concerning", "Sobre, pel que fa a"],
+  ["Need to", "Be required to", "Haver de, tenir l'obligació de"],
+  ["Think about", "Consider", "Considerar, plantejar-se"],
+  ["Show", "Demonstrate", "Mostrar, demostrar"],
+  ["Keep", "Maintain", "Mantenir"],
+  ["Free", "Release", "Alliberar, posar en llibertat"],
+  ["Get on someone's nerves", "Bother / Annoy", "Molestar, posar nerviós"],
+  ["Show up", "Appear / Attend", "Aparèixer / assistir"],
+  ["Bring up", "Mention / Raise", "Mencionar, plantejar"],
+  ["Stand for", "Represent", "Representar, significar"],
+];
+
+// Normaliza: minúsculas, sin espacios extra, sin puntuación final, y acepta ortografía americana (-ize, favorable)
+function norm(s) {
+  return s.toLowerCase().trim()
+    .replace(/[.!?,;:]+$/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/[’`]/g, "'")
+    .replace(/ize\b/g, "ise")
+    .replace(/favorable/g, "favourable");
+}
+const options = w => w[1].split("/").map(s => s.trim());
+
+const $ = id => document.getElementById(id);
+let mode = "easy", queue = [], idx = 0, correct = 0, mistakes = [], answered = false;
+
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function loadWrong() { try { return JSON.parse(localStorage.getItem("wrongWords") || "[]"); } catch { return []; } }
+function saveWrong(list) { try { localStorage.setItem("wrongWords", JSON.stringify(list)); } catch {} }
+
+function startGame(list) {
+  queue = shuffle(list); idx = 0; correct = 0; mistakes = [];
+  $("start").classList.add("hidden"); $("result").classList.add("hidden"); $("game").classList.remove("hidden");
+  show();
+}
+
+function hintFor(w) {
+  // Primera letra de cada opción, con guiones según la longitud de cada palabra
+  return options(w).map(o =>
+    o.split(" ").map((part, i) => {
+      const letters = part.split("").map(() => "_");
+      if (i === 0) letters[0] = part[0];
+      return letters.join(" ");
+    }).join("   ")
+  ).join("   o   ");
+}
+
+function show() {
+  const w = queue[idx];
+  answered = false;
+  $("progress").textContent = `Pregunta ${idx + 1} de ${queue.length}`;
+  $("scoreLive").textContent = `✔ ${correct}`;
+  $("barFill").style.width = (idx / queue.length * 100) + "%";
+  $("word").textContent = w[0];
+  $("cat").textContent = $("showCat").checked ? "(" + w[2] + ")" : "";
+  $("hint").textContent = mode === "easy" ? hintFor(w) : "";
+  $("hint").classList.toggle("hidden", mode !== "easy");
+  $("answer").value = ""; $("answer").disabled = false; $("answer").focus();
+  $("feedback").className = "feedback"; $("feedback").innerHTML = "";
+  $("checkBtn").textContent = "Comprobar"; $("skipBtn").classList.remove("hidden");
+}
+
+function check(skip) {
+  if (answered) { next(); return; }
+  const w = queue[idx];
+  const given = $("answer").value;
+  if (!skip && !given.trim()) { $("answer").focus(); return; }
+  answered = true;
+  const ok = !skip && options(w).some(o => norm(o) === norm(given));
+  const fb = $("feedback");
+  if (ok) {
+    correct++;
+    fb.className = "feedback ok";
+    fb.innerHTML = options(w).length > 1 ? `✅ ¡Correcto! También vale: <b>${w[1]}</b>` : "✅ ¡Correcto!";
+  } else {
+    mistakes.push({ w, given: skip ? "" : given });
+    fb.className = "feedback bad";
+    fb.innerHTML = (skip ? "La respuesta era: " : "❌ Incorrecto. La correcta es: ") + `<b>${w[1]}</b>`;
+  }
+  $("answer").disabled = true;
+  $("scoreLive").textContent = `✔ ${correct}`;
+  $("checkBtn").textContent = idx + 1 < queue.length ? "Siguiente →" : "Ver resultado";
+  $("skipBtn").classList.add("hidden");
+  $("checkBtn").blur(); $("answer").blur();
+}
+
+function next() {
+  idx++;
+  if (idx < queue.length) show(); else finish();
+}
+
+function finish() {
+  const done = Math.min(queue.length, answered ? idx + 1 : idx);
+  $("game").classList.add("hidden"); $("result").classList.remove("hidden");
+  const pct = done ? Math.round(correct / done * 100) : 0;
+  $("finalScore").textContent = `${correct} / ${done}  (${pct}%)`;
+  saveWrong(mistakes.map(m => m.w[0]));
+  if (mistakes.length) {
+    $("mistakes").innerHTML = "<div class='label' style='margin-top:12px'>Para repasar</div><table><tr><th>Informal</th><th>Tu respuesta</th><th>Correcta</th></tr>" +
+      mistakes.map(m => `<tr><td>${m.w[0]}</td><td class="wrong">${m.given ? escapeHtml(m.given) : "—"}</td><td><b>${m.w[1]}</b></td></tr>`).join("") +
+      "</table>";
+    $("retryWrong").classList.remove("hidden");
+  } else {
+    $("mistakes").innerHTML = done ? "<p>🎉 ¡Ninguna fallada!</p>" : "";
+    $("retryWrong").classList.add("hidden");
+  }
+}
+function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
+  mode = b.dataset.mode;
+  let list = WORDS;
+  if ($("onlyWrong").checked) {
+    const wrong = loadWrong();
+    const filtered = WORDS.filter(w => wrong.includes(w[0]));
+    if (filtered.length) list = filtered; else alert("No hay palabras falladas guardadas. Empiezo con todas.");
+  }
+  startGame(list);
+}));
+$("checkBtn").addEventListener("click", () => check(false));
+$("skipBtn").addEventListener("click", () => check(true));
+$("answer").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); check(false); } });
+document.addEventListener("keydown", e => { if (e.key === "Enter" && answered && !$("game").classList.contains("hidden")) { e.preventDefault(); next(); } });
+$("quitBtn").addEventListener("click", finish);
+$("retryWrong").addEventListener("click", () => startGame(mistakes.map(m => m.w)));
+$("backBtn").addEventListener("click", () => { $("result").classList.add("hidden"); $("start").classList.remove("hidden"); });
+</script>
+</body>
+</html>
