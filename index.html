@@ -391,22 +391,6 @@ const OPP_RAW = [
 ];
 const OPPOSITES = OPP_RAW.flatMap(([a, b, ca, cb]) => [[a, b, ca], [b, a, cb]]);
 
-// Frases con instrucción: [original, instrucción, respuesta(s), nº de palabras de la pista]
-const FORMAL_EXPR_RAW = [
-  ["It is very important.", "Usa «It is of…»", "It is of {great|major|considerable|enormous|particular} importance.", 3],
-  ["It is very worrying.", "Usa «It is of…»", "It is of {enormous|great|considerable|major} concern.", 3],
-  ["It is very interesting.", "Usa «It is of…»", "It is of {considerable|great|particular|enormous} interest.", 3],
-  ["This picture is very interesting.", "Usa «is of…»", "This picture is of {great|considerable|particular} interest.", 4],
-  ["They are very different.", "Usa «There is…»", "There is a {major|considerable|significant|great} difference.", 2],
-  ["You must be very attentive.", "Usa «It requires…»", "It requires particular attention.", 2],
-  ["Explore the possibilities.", "Usa «Conduct…» (verbo → nombre)", "Conduct an exploration of the possibilities.", 1],
-  ["Describe the situation.", "Usa «Provide…» (verbo → nombre)", "Provide a description of the situation.", 1],
-  ["Emphasise the importance of education.", "Usa «Place…» (verbo → nombre)", "Place emphasis on the importance of education.", 1],
-  ["Luckily Tom filled up the tank.", "Usa «It was just as well…»", "It was just as well {that |}Tom filled up the tank.", 5],
-  ["I hate reading science-fiction books, not to mention watching films!", "Usa «let alone»", "I hate reading science-fiction books, let alone watching films!", 5],
-  ["I have no idea who is going to win the elections.", "Usa «There is no knowing…»", "There is no knowing what the result of the elections will be.||There is no knowing who is going to win the elections.||There is no knowing who will win the elections.", 4],
-  ["I read many books just for pleasure.", "Usa «out of sheer…»", "I read many books out of sheer pleasure.", 4],
-];
 // [original, empezar con, respuesta(s)]
 const PARTICIPLE_RAW = [
   ["She denied the accusation and rushed outside.", "Denying", "Denying the accusation, she rushed outside."],
@@ -477,7 +461,6 @@ const IMPERSONAL_RAW = [
   ["Experts estimate that the damage cost millions.", "estimated", "The damage", "The damage is estimated to have cost millions."],
   ["Experts estimate that the damage cost millions.", "estimated", "It", "It is estimated that the damage cost millions."],
 ];
-const FORMAL_EXPR = FORMAL_EXPR_RAW.map(([o, instr, a, n]) => makeSentence(o, a, instr, sentenceHint(a, n)));
 const PARTICIPLES = PARTICIPLE_RAW.map(([o, st, a]) => makeSentence(o, a, `Participle clause · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
 const PASSIVES = PASSIVE_RAW.map(([o, st, a]) => makeSentence(o, a, `Pásala a pasiva · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
 const IMPERSONALS = IMPERSONAL_RAW.map(([o, v, st, a]) => makeSentence(o, a, `Usa «${v}» · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
@@ -487,7 +470,6 @@ const SETS = {
   verbs:   { name: "Key Verbs", desc: "Te doy el sinónimo y tú escribes el key verb.", items: KEY_VERBS, prompt: "Sinónimo", answer: "Key verb", long: false },
   reviews: { name: "Vocabulary for Reviews", desc: "Te doy la definición en catalán y tú escribes la palabra en inglés.", items: REVIEWS, prompt: "Definición", answer: "Palabra en inglés", long: true },
   opposites: { name: "Opposites", desc: "Te doy un adjetivo y tú escribes su contrario.", items: OPPOSITES, prompt: "Palabra", answer: "Contrario", extraIsCat: true },
-  formalexpr: { name: "Formal Expressions", desc: "Reescribe la frase de forma más formal (It is of…, let alone, there is no knowing…).", items: FORMAL_EXPR, prompt: "Frase original", answer: "Versión formal", long: true, unit: "frases" },
   inversion: { name: "Inversion", desc: "Reescribe la frase con inversión, empezando por la expresión que te indico.", items: INVERSIONS, prompt: "Frase normal", answer: "Con inversión", long: true, unit: "frases" },
   conditionals: { name: "Inverted Conditionals", desc: "Quita el IF y escribe el condicional invertido (Should / Were / Had).", items: CONDITIONALS, prompt: "Frase con IF", answer: "Condicional invertido", long: true, unit: "frases" },
   participle: { name: "Participle Clauses", desc: "Une o acorta la frase con una participle clause (-ing, Having + V3, V3).", items: PARTICIPLES, prompt: "Frase original", answer: "Participle clause", long: true, unit: "frases" },
