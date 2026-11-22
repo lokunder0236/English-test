@@ -68,6 +68,7 @@
   .sets { display: grid; gap: 8px; margin: 8px 0 0; }
   .set-btn { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .set-btn span { color: var(--muted); font-size: .85rem; }
+  .group { font-weight: 700; margin: 10px 0 0; }
   .set-btn.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
   .word.long { font-size: 1.35rem; font-weight: 600; }
   .cat.instr { color: var(--accent); font-weight: 600; font-size: 1rem; }
@@ -376,19 +377,131 @@ const INVERSIONS = INVERSION_RAW.map(([orig, start, ans]) =>
 const CONDITIONALS = CONDITIONAL_RAW.map(([orig, ans]) =>
   makeSentence(orig, ans, "Quita el IF e invierte el condicional", sentenceHint(ans, 0)));
 
+// Opposites: [palabra, contrario, catalán palabra, catalán contrario]
+const OPP_RAW = [
+  ["Highbrow", "Lowbrow", "Intel·lectual", "Popular o poc sofisticat"],
+  ["Sophisticated", "Primitive", "Sofisticat", "Primitiu"],
+  ["Challenging", "Undemanding", "Exigent", "Poc exigent"],
+  ["Dazzling", "Pedestrian", "Enlluernador", "Vulgar, poc original"],
+  ["Evocative", "Uninspiring", "Evocador", "Poc inspirador"],
+  ["Exquisite", "Clumsy", "Exquisit, refinat", "Maldestre"],
+  ["Intriguing", "Dreary", "Intrigant", "Avorrit, monòton"],
+  ["Peerless", "Run-of-the-mill", "Sense igual, excepcional", "Corrent, del munt"],
+  ["Tongue-in-cheek", "Earnest", "Irònic, en broma", "Seriós, sincer"],
+];
+const OPPOSITES = OPP_RAW.flatMap(([a, b, ca, cb]) => [[a, b, ca], [b, a, cb]]);
+
+// Frases con instrucción: [original, instrucción, respuesta(s), nº de palabras de la pista]
+const FORMAL_EXPR_RAW = [
+  ["It is very important.", "Usa «It is of…»", "It is of {great|major|considerable|enormous|particular} importance.", 3],
+  ["It is very worrying.", "Usa «It is of…»", "It is of {enormous|great|considerable|major} concern.", 3],
+  ["It is very interesting.", "Usa «It is of…»", "It is of {considerable|great|particular|enormous} interest.", 3],
+  ["This picture is very interesting.", "Usa «is of…»", "This picture is of {great|considerable|particular} interest.", 4],
+  ["They are very different.", "Usa «There is…»", "There is a {major|considerable|significant|great} difference.", 2],
+  ["You must be very attentive.", "Usa «It requires…»", "It requires particular attention.", 2],
+  ["Explore the possibilities.", "Usa «Conduct…» (verbo → nombre)", "Conduct an exploration of the possibilities.", 1],
+  ["Describe the situation.", "Usa «Provide…» (verbo → nombre)", "Provide a description of the situation.", 1],
+  ["Emphasise the importance of education.", "Usa «Place…» (verbo → nombre)", "Place emphasis on the importance of education.", 1],
+  ["Luckily Tom filled up the tank.", "Usa «It was just as well…»", "It was just as well {that |}Tom filled up the tank.", 5],
+  ["I hate reading science-fiction books, not to mention watching films!", "Usa «let alone»", "I hate reading science-fiction books, let alone watching films!", 5],
+  ["I have no idea who is going to win the elections.", "Usa «There is no knowing…»", "There is no knowing what the result of the elections will be.||There is no knowing who is going to win the elections.||There is no knowing who will win the elections.", 4],
+  ["I read many books just for pleasure.", "Usa «out of sheer…»", "I read many books out of sheer pleasure.", 4],
+];
+// [original, empezar con, respuesta(s)]
+const PARTICIPLE_RAW = [
+  ["She denied the accusation and rushed outside.", "Denying", "Denying the accusation, she rushed outside."],
+  ["She denied the accusation and rushed outside.", "After", "After denying the accusation, she rushed outside."],
+  ["She denied the accusation and rushed outside.", "Having", "Having denied the accusation, she rushed outside."],
+  ["Tom has mentioned that he would like to move abroad and he is going to Australia next month.", "Having", "Having mentioned that he would like to move abroad, Tom is going to Australia next month."],
+  ["Tom has mentioned that he would like to move abroad and he is going to Australia next month.", "After", "After mentioning that he would like to move abroad, Tom is going to Australia next month."],
+  ["If you see that house from a distance, it looks haunted.", "Seen", "Seen from a distance, that house looks haunted."],
+  ["If you water the plants three times a week, they will grow faster.", "Watered", "Watered three times a week, the plants will grow faster."],
+  ["He finished his homework and then went out with his friends.", "Having", "Having finished his homework, he went out with his friends."],
+  ["She opened the door and saw a strange man.", "Opening", "Opening the door, she saw a strange man."],
+  ["I was walking down the street when I met an old friend.", "Walking", "Walking down the street, I met an old friend."],
+  ["Because he felt tired, he went to bed early.", "Feeling", "Feeling tired, he went to bed early."],
+  ["Because she didn't know what to do, she called her mother.", "Not", "Not knowing what to do, she called her mother."],
+  ["After she had read the letter, she started crying.", "Having", "Having read the letter, she started crying."],
+  ["We had lived in Paris for ten years, so we knew the city very well.", "Having", "Having lived in Paris for ten years, we knew the city very well."],
+  ["Before he left the house, he turned off the lights.", "Before", "Before leaving the house, he turned off the lights."],
+  ["After he graduated from university, he travelled around the world.", "After", "After graduating from university, he travelled around the world."],
+  ["The book was written in 1850 and is still popular today.", "Written", "Written in 1850, the book is still popular today."],
+  ["The castle was built in the 12th century and attracts thousands of tourists.", "Built", "Built in the 12th century, the castle attracts thousands of tourists."],
+  ["The students were impressed by the speech and applauded loudly.", "Impressed", "Impressed by the speech, the students applauded loudly."],
+  ["If it is cooked properly, this fish is delicious.", "Cooked", "Cooked properly, this fish is delicious."],
+];
+const PASSIVE_RAW = [
+  ["My parents bought this house.", "This house", "This house was bought by my parents."],
+  ["The government will pass a new law next Monday.", "A new law", "A new law will be passed {by the government |}next Monday."],
+  ["They should finish the bridge by next Monday.", "The bridge", "The bridge should be finished by next Monday."],
+  ["Penicillin has saved millions of lives.", "Millions of lives", "Millions of lives have been saved by penicillin."],
+  ["Shakespeare wrote Hamlet.", "Hamlet", "Hamlet was written by Shakespeare."],
+  ["A famous architect designed this building.", "This building", "This building was designed by a famous architect."],
+  ["People speak English all over the world.", "English", "English is spoken all over the world."],
+  ["Someone is cleaning the room right now.", "The room", "The room is being cleaned right now."],
+  ["The chef is preparing the meal.", "The meal", "The meal is being prepared{ by the chef|}."],
+  ["They were repairing the road when we arrived.", "The road", "The road was being repaired when we arrived."],
+  ["The police have arrested two men.", "Two men", "Two men have been arrested{ by the police|}."],
+  ["The company had sold all the tickets before the concert.", "All the tickets", "All the tickets had been sold {by the company |}before the concert."],
+  ["They had cancelled the flight.", "The flight", "The flight had been cancelled."],
+  ["They will have finished the project by Friday.", "The project", "The project will have been finished by Friday."],
+  ["They are going to build a new hospital.", "A new hospital", "A new hospital is going to be built."],
+  ["You must wear a helmet.", "A helmet", "A helmet must be worn."],
+  ["They can't solve this problem easily.", "This problem", "This problem can't be solved easily."],
+  ["Someone stole my bike yesterday.", "My bike", "My bike was stolen yesterday."],
+];
+// [original, verbo, empezar con, respuesta(s)]
+const IMPERSONAL_RAW = [
+  ["They say that the president has stolen some money.", "said", "The president", "The president is said to have stolen some money."],
+  ["They say that the president has stolen some money.", "said", "It", "It is said that the president has stolen some money."],
+  ["They believed that the house over the hill was haunted.", "believed", "The house", "The house over the hill was believed to be haunted."],
+  ["They believed that the house over the hill was haunted.", "believed", "It", "It was believed that the house over the hill was haunted."],
+  ["He suffered from nightmares after working in Vietnam.", "reported", "He", "He was reported to suffer from nightmares after working in Vietnam.||He was reported to have suffered from nightmares after working in Vietnam.||He is reported to have suffered from nightmares after working in Vietnam."],
+  ["He suffered from nightmares after working in Vietnam.", "reported", "It", "It was reported that he suffered from nightmares after working in Vietnam.||It is reported that he suffered from nightmares after working in Vietnam."],
+  ["The new president is a moderate.", "assumed", "The new president", "The new president {was|is} assumed to be a moderate."],
+  ["The new president is a moderate.", "assumed", "It", "It was assumed that the new president was a moderate.||It is assumed that the new president is a moderate."],
+  ["The rain will die out this afternoon.", "expected", "The rain", "The rain is expected to die out this afternoon."],
+  ["The rain will die out this afternoon.", "expected", "It", "It is expected that the rain will die out this afternoon."],
+  ["The escaped prisoner is heading for Scotland.", "reported", "The escaped prisoner", "The escaped prisoner {was|is} reported to be heading for Scotland."],
+  ["The escaped prisoner is heading for Scotland.", "reported", "It", "It was reported that the escaped prisoner was heading for Scotland.||It is reported that the escaped prisoner is heading for Scotland."],
+  ["People think that he lives abroad.", "thought", "He", "He is thought to live abroad."],
+  ["People think that he lives abroad.", "thought", "It", "It is thought that he lives abroad."],
+  ["People believe that he stole the money.", "believed", "He", "He is believed to have stolen the money."],
+  ["People believe that he stole the money.", "believed", "It", "It is believed that he stole the money."],
+  ["People think that she has been working abroad.", "thought", "She", "She is thought to have been working abroad."],
+  ["People think that she has been working abroad.", "thought", "It", "It is thought that she has been working abroad."],
+  ["People expect that the economy will improve.", "expected", "The economy", "The economy is expected to improve."],
+  ["People expect that the economy will improve.", "expected", "It", "It is expected that the economy will improve."],
+  ["People say that the president is very wealthy.", "said", "The president", "The president is said to be very wealthy."],
+  ["People say that the president is very wealthy.", "said", "It", "It is said that the president is very wealthy."],
+  ["Experts estimate that the damage cost millions.", "estimated", "The damage", "The damage is estimated to have cost millions."],
+  ["Experts estimate that the damage cost millions.", "estimated", "It", "It is estimated that the damage cost millions."],
+];
+const FORMAL_EXPR = FORMAL_EXPR_RAW.map(([o, instr, a, n]) => makeSentence(o, a, instr, sentenceHint(a, n)));
+const PARTICIPLES = PARTICIPLE_RAW.map(([o, st, a]) => makeSentence(o, a, `Participle clause · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
+const PASSIVES = PASSIVE_RAW.map(([o, st, a]) => makeSentence(o, a, `Pásala a pasiva · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
+const IMPERSONALS = IMPERSONAL_RAW.map(([o, v, st, a]) => makeSentence(o, a, `Usa «${v}» · empieza con «${st}…»`, sentenceHint(a, st.split(" ").length)));
+
 const SETS = {
   formal:  { name: "Informal → Formal", desc: "Te doy la palabra informal y tú escribes la formal.", items: WORDS, prompt: "Informal", answer: "Formal", extraIsCat: true },
   verbs:   { name: "Key Verbs", desc: "Te doy el sinónimo y tú escribes el key verb.", items: KEY_VERBS, prompt: "Sinónimo", answer: "Key verb", long: false },
   reviews: { name: "Vocabulary for Reviews", desc: "Te doy la definición en catalán y tú escribes la palabra en inglés.", items: REVIEWS, prompt: "Definición", answer: "Palabra en inglés", long: true },
+  opposites: { name: "Opposites", desc: "Te doy un adjetivo y tú escribes su contrario.", items: OPPOSITES, prompt: "Palabra", answer: "Contrario", extraIsCat: true },
+  formalexpr: { name: "Formal Expressions", desc: "Reescribe la frase de forma más formal (It is of…, let alone, there is no knowing…).", items: FORMAL_EXPR, prompt: "Frase original", answer: "Versión formal", long: true, unit: "frases" },
   inversion: { name: "Inversion", desc: "Reescribe la frase con inversión, empezando por la expresión que te indico.", items: INVERSIONS, prompt: "Frase normal", answer: "Con inversión", long: true, unit: "frases" },
   conditionals: { name: "Inverted Conditionals", desc: "Quita el IF y escribe el condicional invertido (Should / Were / Had).", items: CONDITIONALS, prompt: "Frase con IF", answer: "Condicional invertido", long: true, unit: "frases" },
+  participle: { name: "Participle Clauses", desc: "Une o acorta la frase con una participle clause (-ing, Having + V3, V3).", items: PARTICIPLES, prompt: "Frase original", answer: "Participle clause", long: true, unit: "frases" },
+  passive: { name: "Passive", desc: "Pasa la frase de activa a pasiva.", items: PASSIVES, prompt: "Activa", answer: "Pasiva", long: true, unit: "frases" },
+  impersonal: { name: "Impersonal Passive", desc: "Reescribe la frase con impersonal passive (is said to… / It is said that…).", items: IMPERSONALS, prompt: "Frase original", answer: "Impersonal passive", long: true, unit: "frases" },
   cleft:   { name: "Cleft Sentences", desc: "Transforma la frase en una cleft sentence (It / What / All / The thing that…).", items: CLEFTS, prompt: "Frase original", answer: "Cleft sentence", long: true, unit: "frases" },
 };
 let setId = "formal";
 try { if (SETS[localStorage.getItem("setId")]) setId = localStorage.getItem("setId"); } catch {}
 
 function renderSets() {
+  const GRAMMAR_START = "inversion";
   $("sets").innerHTML = Object.entries(SETS).map(([id, st]) =>
+    (id === "formal" ? `<div class="group">📚 Vocabulary</div>` : id === GRAMMAR_START ? `<div class="group">✏️ Grammar</div>` : "") +
     `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} ${st.unit || "palabras"}</span></button>`).join("");
   $("sets").querySelectorAll(".set-btn").forEach(b => b.addEventListener("click", () => {
     setId = b.dataset.set; try { localStorage.setItem("setId", setId); } catch {}
