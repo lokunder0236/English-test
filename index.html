@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Informal → Formal</title>
+<title>English Vocabulary Practice</title>
 <style>
   :root {
     --bg: #f4f5f8; --card: #ffffff; --text: #1d2130; --muted: #6b7183;
@@ -65,21 +65,29 @@
   .wrong { color: var(--bad); text-decoration: line-through; }
   .opts { margin-top: 14px; display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: .9rem; }
   .hidden { display: none; }
+  .sets { display: grid; gap: 8px; margin: 8px 0 0; }
+  .set-btn { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .set-btn span { color: var(--muted); font-size: .85rem; }
+  .set-btn.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .word.long { font-size: 1.35rem; font-weight: 600; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Informal → Formal</h1>
-  <p class="sub">Te doy la palabra informal y tú escribes la formal.</p>
+  <h1>English Vocabulary Practice</h1>
+  <p class="sub" id="subtitle">Escoge qué quieres practicar.</p>
 
   <!-- Inicio -->
   <div id="start" class="card">
+    <div class="label">1. ¿Qué quieres practicar?</div>
+    <div class="sets" id="sets"></div>
+    <div class="label" style="margin-top:18px">2. Escoge el modo</div>
     <div class="modes">
       <button class="mode-btn" data-mode="easy"><strong>🟢 Fácil</strong><span>Te doy la primera letra</span></button>
       <button class="mode-btn" data-mode="hard"><strong>🔴 Difícil</strong><span>Sin pistas</span></button>
     </div>
     <div class="opts">
-      <label><input type="checkbox" id="showCat" checked> Mostrar significado en catalán</label>
+      <label id="showCatLabel"><input type="checkbox" id="showCat" checked> Mostrar significado en catalán</label>
       <label><input type="checkbox" id="onlyWrong"> Solo las que fallé la última vez</label>
     </div>
   </div>
@@ -88,12 +96,12 @@
   <div id="game" class="card hidden">
     <div class="top"><span id="progress"></span><span id="scoreLive"></span></div>
     <div class="bar"><div id="barFill"></div></div>
-    <div class="label">Informal</div>
+    <div class="label" id="promptLabel">Informal</div>
     <div class="word" id="word"></div>
     <div class="cat" id="cat"></div>
-    <div class="label">Formal</div>
+    <div class="label" id="answerLabel">Formal</div>
     <div class="hint" id="hint"></div>
-    <input type="text" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe la palabra formal…">
+    <input type="text" id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe la respuesta…">
     <div class="row">
       <button id="checkBtn" class="primary">Comprobar</button>
       <button id="skipBtn">No lo sé</button>
@@ -171,13 +179,92 @@ const WORDS = [
   ["Stand for", "Represent", "Representar, significar"],
 ];
 
+const KEY_VERBS = [
+  ["Elucidate", "Justify"],
+  ["Affect", "Involve"],
+  ["Direct", "Conduct"],
+  ["Depict", "Illustrate"],
+  ["Determine", "Calculate"],
+  ["Estimate", "Assume"],
+  ["Notice", "Detect"],
+  ["Diagnose / Classify", "Identify"],
+  ["Contribute", "Provide"],
+  ["Defy", "Challenge"],
+  ["Evaluate / Audit", "Examine"],
+  ["Evolve", "Develop"],
+  ["Display", "Show"],
+  ["Cite", "Present"],
+  ["Pursue", "Attempt"],
+];
+
+const REVIEWS = [
+  ["Absorbent, que atrapa l'atenció", "Absorbing", "👍 Positiva"],
+  ["Molt interessant, que captiva", "Engrossing", "👍 Positiva"],
+  ["Apassionant, que manté l'atenció", "Riveting", "👍 Positiva"],
+  ["Emocionant, captivador", "Gripping", "👍 Positiva"],
+  ["Molt convincent, que atrapa", "Compelling", "👍 Positiva"],
+  ["Intrigant, que desperta curiositat", "Intriguing", "👍 Positiva"],
+  ["Inoblidable, memorable", "Memorable", "👍 Positiva"],
+  ["Emocionant, estimulant", "Exhilarating", "👍 Positiva"],
+  ["Fascinant, hipnotitzant", "Mesmerising", "👍 Positiva"],
+  ["Impressionant", "Impressive", "👍 Positiva"],
+  ["Excel·lent, extraordinari", "Outstanding", "👍 Positiva"],
+  ["Impactant, potent", "Powerful", "👍 Positiva"],
+  ["Inspirador", "Inspiring", "👍 Positiva"],
+  ["Emotiu, commovedor", "Moving", "👍 Positiva"],
+  ["Il·lustratiu, que aporta coneixement", "Enlightening", "👍 Positiva"],
+  ["Discret, subtil, sense exageracions", "Understated", "👍 Positiva"],
+  ["Infraestimat, poc valorat", "Underrated", "👍 Positiva"],
+  ["Enigmàtic, misteriós", "Enigmatic", "👍 Positiva"],
+  ["Lleuger, poc profund, superficial", "Lightweight", "👍 Positiva"],
+  ["Ple de tòpics, massa típic", "Clichéd", "👎 Negativa"],
+  ["Extremadament avorrit o desagradable", "Excruciating", "👎 Negativa"],
+  ["Poc creïble", "Implausible", "👎 Negativa"],
+  ["Amb massa expectatives o publicitat", "Overhyped", "👎 Negativa"],
+  ["Sentimental, excessivament emotiu", "Sentimental", "👎 Negativa"],
+  ["Excessivament sentimental i ensucrat", "Slushy", "👎 Negativa"],
+  ["Cursi, ridículament sentimental", "Cheesy", "👎 Negativa"],
+  ["Excessivament sentimental, ensucrat", "Drippy", "👎 Negativa"],
+  ["Tediós, pesat, avorrit", "Tedious", "👎 Negativa"],
+  ["Poc convincent", "Unconvincing", "👎 Negativa"],
+  ["Previsible", "Predictable", "👎 Negativa"],
+  ["Lúgubre, excessivament trist", "Lugubrious", "👎 Negativa"],
+  ["Trist, ombrívol, depriment", "Gloomy", "👎 Negativa"],
+  ["Macabre, relacionat amb la mort o allò sinistre", "Macabre", "👎 Negativa"],
+  ["Cruel", "Cruel", "👎 Negativa"],
+  ["Inversemblant, poc creïble", "Far-fetched", "👎 Negativa"],
+  ["Angoixant, angoixós, molt colpidor", "Harrowing", "👎 Negativa"],
+  ["Desconnectat, incoherent, sense continuïtat", "Disjointed", "👎 Negativa"],
+  ["Sobrevalorat", "Overrated", "👎 Negativa"],
+];
+
+const SETS = {
+  formal:  { name: "Informal → Formal", desc: "Te doy la palabra informal y tú escribes la formal.", items: WORDS, prompt: "Informal", answer: "Formal", extraIsCat: true },
+  verbs:   { name: "Key Verbs", desc: "Te doy el sinónimo y tú escribes el key verb.", items: KEY_VERBS, prompt: "Sinónimo", answer: "Key verb", long: false },
+  reviews: { name: "Vocabulary for Reviews", desc: "Te doy la definición en catalán y tú escribes la palabra en inglés.", items: REVIEWS, prompt: "Definición", answer: "Palabra en inglés", long: true },
+};
+let setId = "formal";
+try { if (SETS[localStorage.getItem("setId")]) setId = localStorage.getItem("setId"); } catch {}
+
+function renderSets() {
+  $("sets").innerHTML = Object.entries(SETS).map(([id, st]) =>
+    `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} palabras</span></button>`).join("");
+  $("sets").querySelectorAll(".set-btn").forEach(b => b.addEventListener("click", () => {
+    setId = b.dataset.set; try { localStorage.setItem("setId", setId); } catch {}
+    renderSets();
+  }));
+  $("subtitle").textContent = SETS[setId].desc;
+  $("showCatLabel").classList.toggle("hidden", !SETS[setId].extraIsCat);
+}
+
 // Normaliza: minúsculas, sin espacios extra, sin puntuación final, y acepta ortografía americana (-ize, favorable)
 function norm(s) {
-  return s.toLowerCase().trim()
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
     .replace(/[.!?,;:]+$/g, "")
     .replace(/\s+/g, " ")
     .replace(/[’`]/g, "'")
-    .replace(/ize\b/g, "ise")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/iz(e|ed|ing)\b/g, "is$1")
     .replace(/favorable/g, "favourable");
 }
 const options = w => w[1].split("/").map(s => s.trim());
@@ -190,11 +277,15 @@ function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
-function loadWrong() { try { return JSON.parse(localStorage.getItem("wrongWords") || "[]"); } catch { return []; } }
-function saveWrong(list) { try { localStorage.setItem("wrongWords", JSON.stringify(list)); } catch {} }
+const wrongKey = () => setId === "formal" ? "wrongWords" : "wrongWords_" + setId;
+function loadWrong() { try { return JSON.parse(localStorage.getItem(wrongKey()) || "[]"); } catch { return []; } }
+function saveWrong(list) { try { localStorage.setItem(wrongKey(), JSON.stringify(list)); } catch {} }
 
 function startGame(list) {
   queue = shuffle(list); idx = 0; correct = 0; mistakes = [];
+  const st = SETS[setId];
+  $("promptLabel").textContent = st.prompt; $("answerLabel").textContent = st.answer;
+  $("word").classList.toggle("long", !!st.long);
   $("start").classList.add("hidden"); $("result").classList.add("hidden"); $("game").classList.remove("hidden");
   show();
 }
@@ -203,7 +294,7 @@ function hintFor(w) {
   // Primera letra de cada opción, con guiones según la longitud de cada palabra
   return options(w).map(o =>
     o.split(" ").map((part, i) => {
-      const letters = part.split("").map(() => "_");
+      const letters = part.split("").map(c => c === "-" ? "-" : "_");
       if (i === 0) letters[0] = part[0];
       return letters.join(" ");
     }).join("   ")
@@ -217,7 +308,8 @@ function show() {
   $("scoreLive").textContent = `✔ ${correct}`;
   $("barFill").style.width = (idx / queue.length * 100) + "%";
   $("word").textContent = w[0];
-  $("cat").textContent = $("showCat").checked ? "(" + w[2] + ")" : "";
+  const st = SETS[setId];
+  $("cat").textContent = !w[2] ? "" : st.extraIsCat ? ($("showCat").checked ? "(" + w[2] + ")" : "") : w[2];
   $("hint").textContent = mode === "easy" ? hintFor(w) : "";
   $("hint").classList.toggle("hidden", mode !== "easy");
   $("answer").value = ""; $("answer").disabled = false; $("answer").focus();
@@ -261,7 +353,7 @@ function finish() {
   $("finalScore").textContent = `${correct} / ${done}  (${pct}%)`;
   saveWrong(mistakes.map(m => m.w[0]));
   if (mistakes.length) {
-    $("mistakes").innerHTML = "<div class='label' style='margin-top:12px'>Para repasar</div><table><tr><th>Informal</th><th>Tu respuesta</th><th>Correcta</th></tr>" +
+    $("mistakes").innerHTML = `<div class='label' style='margin-top:12px'>Para repasar</div><table><tr><th>${SETS[setId].prompt}</th><th>Tu respuesta</th><th>Correcta</th></tr>` +
       mistakes.map(m => `<tr><td>${m.w[0]}</td><td class="wrong">${m.given ? escapeHtml(m.given) : "—"}</td><td><b>${m.w[1]}</b></td></tr>`).join("") +
       "</table>";
     $("retryWrong").classList.remove("hidden");
@@ -274,10 +366,11 @@ function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": 
 
 document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
   mode = b.dataset.mode;
-  let list = WORDS;
+  const ALL = SETS[setId].items;
+  let list = ALL;
   if ($("onlyWrong").checked) {
     const wrong = loadWrong();
-    const filtered = WORDS.filter(w => wrong.includes(w[0]));
+    const filtered = ALL.filter(w => wrong.includes(w[0]));
     if (filtered.length) list = filtered; else alert("No hay palabras falladas guardadas. Empiezo con todas.");
   }
   startGame(list);
@@ -289,6 +382,7 @@ document.addEventListener("keydown", e => { if (e.key === "Enter" && answered &&
 $("quitBtn").addEventListener("click", finish);
 $("retryWrong").addEventListener("click", () => startGame(mistakes.map(m => m.w)));
 $("backBtn").addEventListener("click", () => { $("result").classList.add("hidden"); $("start").classList.remove("hidden"); });
+renderSets();
 </script>
 </body>
 </html>
