@@ -508,7 +508,11 @@ function norm(s) {
     .replace(/favorable/g, "favourable");
 }
 const options = w => w[3] ? w[3].answers : w[1].split("/").map(s => s.trim());
-const itemKey = w => w[0] + "|" + (w[3] ? w[2] : "");
+// Clau independent de l'idioma: frase original + resposta correcta
+const itemKey = w => w[0] + "|" + (w[3] ? w[1] : "");
+// Compatibilitat amb fallades guardades abans (clau amb la instrucció en castellà): coincideix per la frase original
+const isWrong = (w, wrong) => wrong.includes(itemKey(w)) ||
+  (w[3] && wrong.some(k => k.startsWith(w[0] + "|") && k.length > w[0].length + 1));
 
 const $ = id => document.getElementById(id);
 let mode = "easy", queue = [], idx = 0, correct = 0, mistakes = [], answered = false;
@@ -635,7 +639,7 @@ document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", 
   let list = ALL;
   if ($("onlyWrong").checked) {
     const wrong = loadWrong();
-    const filtered = ALL.filter(w => wrong.includes(itemKey(w)));
+    const filtered = ALL.filter(w => isWrong(w, wrong));
     if (filtered.length) list = filtered; else alert("No hi ha cap pregunta fallada guardada. Començo amb totes.");
   }
   startGame(list);
