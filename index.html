@@ -129,62 +129,6 @@
 </div>
 
 <script>
-const WORDS = [
-  ["Get", "Obtain", "Aconseguir, obtenir"],
-  ["Buy", "Purchase", "Comprar, adquirir"],
-  ["Help", "Assist", "Ajudar, assistir"],
-  ["Ask for help", "Request assistance", "Demanar ajuda"],
-  ["Tell", "Inform", "Informar, comunicar"],
-  ["Need", "Require", "Necessitar, requerir"],
-  ["Enough", "Sufficient", "Suficient"],
-  ["Start", "Begin", "Començar, iniciar"],
-  ["End", "Cease", "Acabar, cessar"],
-  ["Deal with", "Handle", "Gestionar, afrontar"],
-  ["Look into", "Investigate", "Investigar"],
-  ["Put off", "Postpone", "Posposar, ajornar"],
-  ["Put up with", "Tolerate", "Tolerar, suportar"],
-  ["Find out", "Discover", "Descobrir"],
-  ["Live longer than", "Outlive", "Sobreviure a algú, viure més que"],
-  ["Go up", "Increase", "Augmentar, incrementar"],
-  ["Go down", "Decrease", "Disminuir, reduir"],
-  ["Use", "Utilise", "Utilitzar"],
-  ["Before", "Prior to", "Abans de"],
-  ["After", "Following", "Després de"],
-  ["Now", "Currently", "Actualment"],
-  ["Many", "Numerous", "Nombrosos, molts"],
-  ["A lot of", "A great deal of", "Una gran quantitat de"],
-  ["Bad", "Unfavourable / Adverse", "Dolent, desfavorable, advers"],
-  ["Good", "Beneficial", "Beneficiós"],
-  ["Job", "Occupation", "Feina, ocupació"],
-  ["Chance", "Opportunity", "Oportunitat"],
-  ["Problem", "Issue", "Problema, qüestió"],
-  ["Choice", "Option", "Opció, elecció"],
-  ["Lucky", "Fortunate", "Afortunat"],
-  ["Seem", "Appear", "Semblar"],
-  ["Say sorry", "Apologise", "Disculpar-se"],
-  ["Set up", "Establish", "Establir, fundar"],
-  ["Look at", "Examine", "Examinar"],
-  ["Call off", "Cancel", "Cancel·lar, anul·lar"],
-  ["Let", "Allow / Permit", "Permetre"],
-  ["Fill in", "Complete / Fill out", "Emplenar (un formulari)"],
-  ["Input", "Enter", "Introduir dades"],
-  ["Try", "Attempt", "Intentar"],
-  ["Rack up", "Accumulate", "Acumular"],
-  ["Point out", "Indicate", "Assenyalar, indicar"],
-  ["Go against", "Oppose", "Oposar-se a"],
-  ["Get in touch with", "Contact", "Posar-se en contacte amb"],
-  ["About", "Regarding / Concerning", "Sobre, pel que fa a"],
-  ["Need to", "Be required to", "Haver de, tenir l'obligació de"],
-  ["Think about", "Consider", "Considerar, plantejar-se"],
-  ["Show", "Demonstrate", "Mostrar, demostrar"],
-  ["Keep", "Maintain", "Mantenir"],
-  ["Free", "Release", "Alliberar, posar en llibertat"],
-  ["Get on someone's nerves", "Bother / Annoy", "Molestar, posar nerviós"],
-  ["Show up", "Appear / Attend", "Aparèixer / assistir"],
-  ["Bring up", "Mention / Raise", "Mencionar, plantejar"],
-  ["Stand for", "Represent", "Representar, significar"],
-];
-
 const KEY_VERBS = [
   ["Elucidate", "Justify"],
   ["Affect", "Involve"],
@@ -201,47 +145,6 @@ const KEY_VERBS = [
   ["Display", "Show"],
   ["Cite", "Present"],
   ["Pursue", "Attempt"],
-];
-
-const REVIEWS = [
-  ["Absorbent, que atrapa l'atenció", "Absorbing", "👍 Positiva"],
-  ["Molt interessant, que captiva", "Engrossing", "👍 Positiva"],
-  ["Apassionant, que manté l'atenció", "Riveting", "👍 Positiva"],
-  ["Emocionant, captivador", "Gripping", "👍 Positiva"],
-  ["Molt convincent, que atrapa", "Compelling", "👍 Positiva"],
-  ["Intrigant, que desperta curiositat", "Intriguing", "👍 Positiva"],
-  ["Inoblidable, memorable", "Memorable", "👍 Positiva"],
-  ["Emocionant, estimulant", "Exhilarating", "👍 Positiva"],
-  ["Fascinant, hipnotitzant", "Mesmerising", "👍 Positiva"],
-  ["Impressionant", "Impressive", "👍 Positiva"],
-  ["Excel·lent, extraordinari", "Outstanding", "👍 Positiva"],
-  ["Impactant, potent", "Powerful", "👍 Positiva"],
-  ["Inspirador", "Inspiring", "👍 Positiva"],
-  ["Emotiu, commovedor", "Moving", "👍 Positiva"],
-  ["Il·lustratiu, que aporta coneixement", "Enlightening", "👍 Positiva"],
-  ["Discret, subtil, sense exageracions", "Understated", "👍 Positiva"],
-  ["Infraestimat, poc valorat", "Underrated", "👍 Positiva"],
-  ["Enigmàtic, misteriós", "Enigmatic", "👍 Positiva"],
-  ["Lleuger, poc profund, superficial", "Lightweight", "👍 Positiva"],
-  ["Ple de tòpics, massa típic", "Clichéd", "👎 Negativa"],
-  ["Extremadament avorrit o desagradable", "Excruciating", "👎 Negativa"],
-  ["Poc creïble", "Implausible", "👎 Negativa"],
-  ["Amb massa expectatives o publicitat", "Overhyped", "👎 Negativa"],
-  ["Sentimental, excessivament emotiu", "Sentimental", "👎 Negativa"],
-  ["Excessivament sentimental i ensucrat", "Slushy", "👎 Negativa"],
-  ["Cursi, ridículament sentimental", "Cheesy", "👎 Negativa"],
-  ["Excessivament sentimental, ensucrat", "Drippy", "👎 Negativa"],
-  ["Tediós, pesat, avorrit", "Tedious", "👎 Negativa"],
-  ["Poc convincent", "Unconvincing", "👎 Negativa"],
-  ["Previsible", "Predictable", "👎 Negativa"],
-  ["Lúgubre, excessivament trist", "Lugubrious", "👎 Negativa"],
-  ["Trist, ombrívol, depriment", "Gloomy", "👎 Negativa"],
-  ["Macabre, relacionat amb la mort o allò sinistre", "Macabre", "👎 Negativa"],
-  ["Cruel", "Cruel", "👎 Negativa"],
-  ["Inversemblant, poc creïble", "Far-fetched", "👎 Negativa"],
-  ["Angoixant, angoixós, molt colpidor", "Harrowing", "👎 Negativa"],
-  ["Desconnectat, incoherent, sense continuïtat", "Disjointed", "👎 Negativa"],
-  ["Sobrevalorat", "Overrated", "👎 Negativa"],
 ];
 
 // Cleft sentences: [original, tipo, foco/inicio, respuesta(s), pista]
@@ -468,9 +371,7 @@ const PASSIVES = PASSIVE_RAW.map(([o, st, a]) => makeSentence(o, a, `Passa-la a 
 const IMPERSONALS = IMPERSONAL_RAW.map(([o, v, st, a]) => makeSentence(o, a, `Fes servir «${v}» · comença amb «${st}…»`, sentenceHint(a, st.split(" ").length)));
 
 const SETS = {
-  formal:  { name: "Informal → Formal", desc: "Et dono la paraula informal i tu escrius la formal.", items: WORDS, prompt: "Informal", answer: "Formal", extraIsCat: true },
   verbs:   { name: "Key Verbs", desc: "Et dono el sinònim i tu escrius el key verb.", items: KEY_VERBS, prompt: "Sinònim", answer: "Key verb", long: false },
-  reviews: { name: "Vocabulary for Reviews", desc: "Et dono la definició en català i tu escrius la paraula en anglès.", items: REVIEWS, prompt: "Definició", answer: "Paraula en anglès", long: true },
   opposites: { name: "Opposites", desc: "Et dono un adjectiu i tu escrius el seu contrari.", items: OPPOSITES, prompt: "Paraula", answer: "Contrari", extraIsCat: true },
   inversion: { name: "Inversion", desc: "Reescriu la frase amb inversió, començant per l'expressió que t'indico.", items: INVERSIONS, prompt: "Frase normal", answer: "Amb inversió", long: true, unit: "frases" },
   conditionals: { name: "Inverted Conditionals", desc: "Treu l'IF i escriu el condicional invertit (Should / Were / Had).", items: CONDITIONALS, prompt: "Frase amb IF", answer: "Condicional invertit", long: true, unit: "frases" },
@@ -479,13 +380,13 @@ const SETS = {
   impersonal: { name: "Impersonal Passive", desc: "Reescriu la frase amb impersonal passive (is said to… / It is said that…).", items: IMPERSONALS, prompt: "Frase original", answer: "Impersonal passive", long: true, unit: "frases" },
   cleft:   { name: "Cleft Sentences", desc: "Transforma la frase en una cleft sentence (It / What / All / The thing that…).", items: CLEFTS, prompt: "Frase original", answer: "Cleft sentence", long: true, unit: "frases" },
 };
-let setId = "formal";
+let setId = "verbs";
 try { if (SETS[localStorage.getItem("setId")]) setId = localStorage.getItem("setId"); } catch {}
 
 function renderSets() {
   const GRAMMAR_START = "inversion";
   $("sets").innerHTML = Object.entries(SETS).map(([id, st]) =>
-    (id === "formal" ? `<div class="group">📚 Vocabulary</div>` : id === GRAMMAR_START ? `<div class="group">✏️ Grammar</div>` : "") +
+    (id === "verbs" ? `<div class="group">📚 Vocabulary</div>` : id === GRAMMAR_START ? `<div class="group">✏️ Grammar</div>` : "") +
     `<button class="set-btn${id === setId ? " active" : ""}" data-set="${id}"><strong>${st.name}</strong><span>${st.items.length} ${st.unit || "paraules"}</span></button>`).join("");
   $("sets").querySelectorAll(".set-btn").forEach(b => b.addEventListener("click", () => {
     setId = b.dataset.set; try { localStorage.setItem("setId", setId); } catch {}
